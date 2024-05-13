@@ -902,6 +902,7 @@ function substitute(simple, goal) {
 
 function simpleToSegment(simple, goal, astTokens, maxSubs) {
     var numSubs = 0;
+    maxSubs = Math.floor(maxSubs);
     while (simple!=`|${goal}|`) {
         if (numSubs==maxSubs) {
             return [false, numSubs, [simple, astTokens]]
@@ -934,7 +935,7 @@ parsingStorage = {
     doneParsing: false
 }
 
-function setupParse(tokens, subsPerUpdate, onUpdate=null, onDone=null) {
+function setupParse(tokens, msPerUpdate, onUpdate=null, onDone=null) {
     parsingStorage.simpleTokens = tokens.map(token => token.simple).join('');
     parsingStorage.astTokens = tokens.map(token => {
         switch(token.type) {
@@ -948,7 +949,7 @@ function setupParse(tokens, subsPerUpdate, onUpdate=null, onDone=null) {
                 return token
         }
     })
-    parsingStorage.subsPerUpdate = subsPerUpdate;
+    parsingStorage.msPerUpdate = msPerUpdate;
     parsingStorage.onUpdate = onUpdate;
     parsingStorage.onDone = onDone;
     parsingStorage.totalSubs = 0;
@@ -958,8 +959,9 @@ function setupParse(tokens, subsPerUpdate, onUpdate=null, onDone=null) {
 
 function parse() {
     if (parsingStorage.readyToParse && !parsingStorage.doneParsing) {
-        let start = performance.now()
-        let [done, numSubs, result] = simpleToSegment(parsingStorage.simpleTokens, "block", parsingStorage.astTokens, parsingStorage.subsPerUpdate);
+        let start = performance.now();
+        let maxSubs = Math.max(2500*parsingStorage.msPerUpdate/parsingStorage.astTokens.length, 1);
+        let [done, numSubs, result] = simpleToSegment(parsingStorage.simpleTokens, "block", parsingStorage.astTokens, maxSubs);
         let timeElapsed = (performance.now()-start)/1000;
         parsingStorage.totalSubs += numSubs;
         if (done) {

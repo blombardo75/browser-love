@@ -1,4 +1,4 @@
-var useBig = false;
+var useBig = true;
 async function readLua(filename) {
     /*let fr = new FileReader();
     fr.readAsText(filename);
@@ -1539,7 +1539,7 @@ function translate() {
 
 function fullTest() {
 	readLua('main.lua').then(tokenize).then((tokens) => {
-		setupParse(tokens, 100, (numSubs, timeElapsed) => {
+		setupParse(tokens, 30, (numSubs, timeElapsed) => {
 			print(parsingStorage.doneParsing ? "1 token" : `${parsingStorage.astTokens.length} tokens`, '|', `${numSubs} subs (${parsingStorage.totalSubs} total)`, '|', `${timeElapsed.toFixed(4)} secs`)
 		}, translate);
 		parse();
