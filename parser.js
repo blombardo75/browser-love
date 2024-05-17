@@ -150,7 +150,7 @@ function findEnd(s, startIndex) {
     return curIndex
 }
 
-function substitute(simple, goal) {
+function substitute(simple, goal, errorChecking=false) {
     //find a single thing to substitute
     //example: exp binop exp --> exp at a specific index in the string, label what kind of sub as well
     //return "|exp||binop||exp|", 12, "exp", "BinaryOperator"
@@ -165,14 +165,16 @@ function substitute(simple, goal) {
     //function ... end
 
     //console.log(simple, goal)
-    if(simple=='|'+goal+"|") {
-        console.log(simple);
-        throw new NotSupportedError('Nothing to substitute')
-    } else if (simple=="") {
-        throw new NotSupportedError('Cannot substitute empty string')
-    } else if (simple.split('|').length%2==0) {
-        console.log(simple)
-        throw new NotSupportedError('Bad simple')
+    if (errorChecking) {
+        if(simple=='|'+goal+"|") {
+            console.log(simple);
+            throw new NotSupportedError('Nothing to substitute')
+        } else if (simple=="") {
+            throw new NotSupportedError('Cannot substitute empty string')
+        } else if (simple.split('|').length%2==0) {
+            console.log(simple)
+            throw new NotSupportedError('Bad simple')
+        }
     }
 
     var guaranteedReplacements = [
@@ -593,7 +595,9 @@ function substitute(simple, goal) {
             return [rawStr, startIndex+6, newStr, subType]
         }
         if (simple.includes('|return|')) {
-            if (simple.endsWith('|return||explist|')) {
+            if (simple.endsWith('|return|')) {
+                return ['|return|', simple.lastIndexOf('|return|'), 'stat', 'ReturnStatement']
+            } else if (simple.endsWith('|return||explist|')) {
                 return ['|return||explist|', simple.lastIndexOf('|return||explist|'), 'stat', 'ReturnStatement']
             } else {
                 let start = simple.lastIndexOf('|return|')
@@ -826,7 +830,7 @@ function substitute(simple, goal) {
     }
 
     if (simple.includes('|var|')) {
-        return ['|var|', simple.indexOf('|var|'), 'prefixexp', 'varPrefixexp']
+        return ['|var|', simple.indexOf('|var|'), 'prefixexp', 'VarPrefixexp']
     }
 
     if (simple.includes('|prefixexp|')) {
@@ -900,26 +904,28 @@ function substitute(simple, goal) {
     throw new NotSupportedError("could not parse tokens")
 }
 
-function simpleToSegment(simple, goal, astTokens, maxSubs) {
+function simpleToSegment(simple, goal, astTokens, maxTime, errorChecking=false) {
     var numSubs = 0;
-    maxSubs = Math.floor(maxSubs);
+    var start = performance.now()
     while (simple!=`|${goal}|`) {
-        if (numSubs==maxSubs) {
+        if (performance.now()-start >= maxTime) {
             return [false, numSubs, [simple, astTokens]]
         }
-        var [rawStr, startIndex, newStr, subType] = substitute(simple, goal);
+        var [rawStr, startIndex, newStr, subType] = substitute(simple, goal, errorChecking);
         var numRawTokens = (rawStr.split('|').length - 1)/2;
         var numStartTokens = (simple.slice(0, startIndex).split('|').length-1)/2;
         var endIndex = startIndex + rawStr.length;
         var newAstToken = new Segment(subType, astTokens.slice(numStartTokens, numStartTokens+numRawTokens));
 
-        if (rawStr!=simple.slice(startIndex, startIndex+rawStr.length)) {
-            console.log(rawStr, startIndex, newStr, subType);
-            throw new NotSupportedError('Bad Substitution: Wrong Index')
-        }
-        if ((startIndex!=0 && simple[startIndex-1] != '|') || (simple.length>endIndex && simple[endIndex]!='|')) {
-            console.log(rawStr, startIndex, newStr, subType);
-            throw new NotSupportedError('Bad Substitution')
+        if (errorChecking) {
+            if (rawStr!=simple.slice(startIndex, startIndex+rawStr.length)) {
+                console.log(rawStr, startIndex, newStr, subType);
+                throw new NotSupportedError('Bad Substitution: Wrong Index')
+            }
+            if ((startIndex!=0 && simple[startIndex-1] != '|') || (simple.length>endIndex && simple[endIndex]!='|')) {
+                console.log(rawStr, startIndex, newStr, subType);
+                throw new NotSupportedError('Bad Substitution')
+            }
         }
 
         simple = `${simple.slice(0, startIndex)}|${newStr}|${simple.slice(endIndex)}`;
@@ -960,8 +966,7 @@ function setupParse(tokens, msPerUpdate, onUpdate=null, onDone=null) {
 function parse() {
     if (parsingStorage.readyToParse && !parsingStorage.doneParsing) {
         let start = performance.now();
-        let maxSubs = Math.max(2500*parsingStorage.msPerUpdate/parsingStorage.astTokens.length, 1);
-        let [done, numSubs, result] = simpleToSegment(parsingStorage.simpleTokens, "block", parsingStorage.astTokens, maxSubs);
+        let [done, numSubs, result] = simpleToSegment(parsingStorage.simpleTokens, "block", parsingStorage.astTokens, parsingStorage.msPerUpdate);
         let timeElapsed = (performance.now()-start)/1000;
         parsingStorage.totalSubs += numSubs;
         if (done) {
