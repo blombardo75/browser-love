@@ -1,4 +1,4 @@
-var useBig = true;
+var useBig = false;
 async function readLua(filename) {
     /*let fr = new FileReader();
     fr.readAsText(filename);
@@ -1836,7 +1836,7 @@ function castAST(segment) {
 		case "AssignmentStatement":
 			return new AssignmentStatement(false, components[0].components, components[2].components)
 		case "LocalAssignmentStatement":
-			return new AssignmentStatement(true, components[0].components, components[2].components)
+			return new AssignmentStatement(true, components[1].components, components[3].components)
 		case "EmptyParenArgs":
 			return new Temporary("Args")
 		case "ExplistArgs":
@@ -1924,7 +1924,10 @@ function fullTest() {
 	readLua('main.lua').then(tokenize).then((tokens) => {
 		setupParse(tokens, 30, (numSubs, timeElapsed) => {
 			print(parsingStorage.doneParsing ? "1 token" : `${parsingStorage.astTokens.length} tokens`, '|', `${numSubs} subs (${parsingStorage.totalSubs} total)`, '|', `${timeElapsed.toFixed(4)} secs`)
-		}, translate);
+		}, () => {
+			translate();
+			startProject(init, draw, update, (error) => {throw error});
+		});
 		parse();
 	})
 }

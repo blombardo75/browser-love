@@ -17,6 +17,50 @@ function print(...asd) {
     document.getElementById('luaConsole').innerHTML = lines.slice(-displayLines).join('\n');
 }
 
+function startProject(init, draw, update, onError) {
+    var lastRun = performance.now();
+    var hitError = false;
+
+    function updateWithDt() {
+        var time = performance.now();
+        update((time-lastRun)/1000);
+        lastRun = time;
+    }
+
+    function updateLoop() {
+        if (!hitError) {
+            let start = performance.now();
+            try {
+                while (performance.now()-start<0.4) {
+                    updateWithDt()
+                }
+            } catch (error) {
+                hitError = true;
+                onError(error);
+            }
+            setTimeout(updateLoop, 0)
+        }
+    }
+
+    function drawLoop() {
+        if (!hitError) {
+            try {
+                draw()
+            } catch (error) {
+                hitError = true;
+                onError(error);
+            }
+            requestAnimationFrame(drawLoop);
+        }
+    }
+
+    init()
+    for (let i=0; i<10; i++) {
+        updateLoop();
+    }
+    requestAnimationFrame(drawLoop)
+}
+
 window.onload = (event) => {
     clearConsole();
 	fullTest();
