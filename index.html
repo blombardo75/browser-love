@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="style.css">
+    <script src="webGLUtils.js"></script>
+    <script src="webGLInterface.js"></script>
+    <script src="loveInterface.js"></script>
+    <script src="canvasTest2.js"></script>
     <script src="interface.js"></script>
-    <script src="canvasTest.js"></script>
     <script src="parser.js"></script>
     <script src="translator.js"></script>
 </head>
 <body>
-    <canvas id="luaCanvas"></canvas>
+    <canvas id="luaCanvas" width="1024" height="768"></canvas>
     <div id="luaConsole"></div>
     <button onclick="print('O'.repeat(1000))">Print Test</button>
     <button onclick="fullTest()">Parse Test</button>

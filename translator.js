@@ -1920,13 +1920,12 @@ function translate() {
 	console.log(ast);
 }
 
-function fullTest() {
+function parseTest() {
 	readLua('main.lua').then(tokenize).then((tokens) => {
 		setupParse(tokens, 30, (numSubs, timeElapsed) => {
 			print(parsingStorage.doneParsing ? "1 token" : `${parsingStorage.astTokens.length} tokens`, '|', `${numSubs} subs (${parsingStorage.totalSubs} total)`, '|', `${timeElapsed.toFixed(4)} secs`)
 		}, () => {
 			translate();
-			startProject(init, draw, update, (error) => {throw error});
 		});
 		parse();
 	})

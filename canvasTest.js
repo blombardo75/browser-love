@@ -16,3 +16,5 @@ function init() {
     updateCount = 0;
     drawCount = 0;
 }
+
+function mousepressed(x, y) {}

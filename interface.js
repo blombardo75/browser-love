@@ -17,14 +17,40 @@ function print(...asd) {
     document.getElementById('luaConsole').innerHTML = lines.slice(-displayLines).join('\n');
 }
 
-function startProject(init, draw, update, onError) {
+function setupCanvas(mousepressed) {
+    let canvas = document.getElementById("luaCanvas");
+    canvas.onmousedown = e => {
+        let rect = canvas.getBoundingClientRect();
+        mousepressed(e.clientX - rect.left, e.clientY - rect.top);
+    };
+    canvas.onselectstart = e => false;
+}
+
+projectStarted = false;
+function startProject(init, draw, update, mousepressed, onError, updateLimit) {
+    if (projectStarted) return;
+    projectStarted = true;
     var lastRun = performance.now();
     var hitError = false;
+    var hasUpdated = true;
 
     function updateWithDt() {
         var time = performance.now();
         update((time-lastRun)/1000);
         lastRun = time;
+        hasUpdated = true;
+    }
+
+    function updateLoopCapped(waitTime) {
+        if (!hitError) {
+            try {
+                updateWithDt()
+            } catch (error) {
+                hitError = true;
+                onError(error);
+            }
+            setTimeout(updateLoopCapped, lastRun+waitTime-performance.now(), waitTime)
+        }
     }
 
     function updateLoop() {
@@ -44,24 +70,39 @@ function startProject(init, draw, update, onError) {
 
     function drawLoop() {
         if (!hitError) {
-            try {
-                draw()
-            } catch (error) {
-                hitError = true;
-                onError(error);
+            if (hasUpdated) {
+                hasUpdated = false;
+                try {
+                    draw()
+                } catch (error) {
+                    hitError = true;
+                    onError(error);
+                }
             }
             requestAnimationFrame(drawLoop);
         }
     }
 
-    init()
-    for (let i=0; i<10; i++) {
-        updateLoop();
+    setupWebGL();
+    setupCanvas(mousepressed);
+    setupLoveInterface();
+    try {
+        init()
+    } catch (error) {
+        hitError = true;
+        onError(error);
+    }
+    if (updateLimit) {
+        updateLoopCapped(1000/updateLimit)
+    } else {
+        for (let i=0; i<10; i++) {
+            updateLoop();
+        }
     }
     requestAnimationFrame(drawLoop)
 }
 
 window.onload = (event) => {
     clearConsole();
-	fullTest();
+	startProject(init, draw, update, mousepressed, (error) => {throw error});
 };
