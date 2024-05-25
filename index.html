@@ -8,14 +8,16 @@
     <script src="loveInterface.js"></script>
     <script src="canvasTest2.js"></script>
     <script src="interface.js"></script>
+    <script src="tokenizer.js"></script>
     <script src="parser.js"></script>
     <script src="translator.js"></script>
 </head>
 <body>
+    <button onclick="webGLInterface.switch()">Color Switch</button>
     <canvas id="luaCanvas" width="1024" height="768"></canvas>
     <div id="luaConsole"></div>
     <button onclick="print('O'.repeat(1000))">Print Test</button>
-    <button onclick="fullTest()">Parse Test</button>
+    <button onclick="parseTest()">Parse Test</button>
     <br>
     <br>
     This is an English sentence.

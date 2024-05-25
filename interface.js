@@ -27,7 +27,7 @@ function setupCanvas(mousepressed) {
 }
 
 projectStarted = false;
-function startProject(init, draw, update, mousepressed, onError, updateLimit) {
+async function startProject(init, draw, update, mousepressed, onError, updateLimit) {
     if (projectStarted) return;
     projectStarted = true;
     var lastRun = performance.now();
@@ -83,7 +83,7 @@ function startProject(init, draw, update, mousepressed, onError, updateLimit) {
         }
     }
 
-    setupWebGL();
+    await setupWebGL();
     setupCanvas(mousepressed);
     setupLoveInterface();
     try {
@@ -104,5 +104,5 @@ function startProject(init, draw, update, mousepressed, onError, updateLimit) {
 
 window.onload = (event) => {
     clearConsole();
-	startProject(init, draw, update, mousepressed, (error) => {throw error});
+    startProject(init, draw, update, mousepressed, (error) => {throw error});
 };

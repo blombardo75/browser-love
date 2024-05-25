@@ -1,3 +1,14 @@
+function getLineEnding(rawText) {
+    var firstNewline = rawText.indexOf('\n');
+    return (firstNewline>0 && rawText[firstNewline-1] === '\r') ? 'CRLF' : 'LF'
+}
+
+async function readFile(filename) {
+	a = await fetch(filename).then(res => res.text());
+	if (getLineEnding(a)=='CRLF') a = a.replaceAll('\r\n', '\n');
+	return a;
+}
+
 function createProgram(gl, shaders) {
     const program = gl.createProgram();
     shaders.forEach(shader => gl.attachShader(program, shader))
@@ -60,10 +71,42 @@ function makeBuffers(gl, inputs, locations) {
                     var n = 4;
                     break;
                 default:
-                    throw new NotSupportedError()
+                    throw new NotSupportedError(dataType)
             }
             buffers[name] = createVectorBuffer(gl, n, locations[name])
         }
     });
     return buffers;
+}
+
+async function makeShader(gl, shaderStorage, shaderName) {
+    const vsSource = await readFile(`shaders/${shaderName}/vertex.glsl`);
+    const fsSource = await readFile(`shaders/${shaderName}/fragment.glsl`);
+    const module = await import(`/shaders/${shaderName}/interface.js`);
+    const inputs = module.inputs;
+    const shaderInterface = module.Interface;
+
+    const shaderProgram = makeStandardProgram(gl, vsSource, fsSource);
+
+    const locations = makeLocations(gl, shaderProgram, inputs);
+
+    shaderInterface.setProgram = function() {
+        shaderStorage.setProgram(shaderName);
+    }
+    shaderInterface.remakeBuffers = function() {
+        this.buffers = makeBuffers(gl, inputs, locations);
+    }
+    shaderInterface.locations = locations;
+
+    shaderInterface.updateAttribute = function(name, newData, usage) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers[name]);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(newData), usage);
+    }
+
+    shaderInterface.updateUniform = function(name, ...values) {
+        n = values.length;
+        gl[`uniform${n}f`](this.locations[name], ...values);
+    }
+
+    return [shaderProgram, shaderInterface];
 }
