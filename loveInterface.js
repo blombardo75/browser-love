@@ -1,33 +1,34 @@
 function setupLoveInterface() {
-    love = {
-        window: {}
+    const canvas = document.getElementById("luaCanvas");
+
+    loveInterface = {
+        window: {},
+        temporary: {}
     }
 
-    tempLove = {}
-
-    let canvas = document.getElementById("luaCanvas");
-
-    love.window.getHeight = function() {
+    loveInterface.window.getHeight = function() {
         return canvas.getBoundingClientRect().height
     }
 
-    love.window.getWidth = function() {
+    loveInterface.window.getWidth = function() {
         return canvas.getBoundingClientRect().width
     }
 
-    tempLove.fillBg = function(r, g, b) {
+    loveInterface.temporary.fillBg = function(r, g, b) {
         webGLInterface.fillBg(r, g, b);
     }
 
-    tempLove.point = function(x, y) {
+    loveInterface.temporary.point = function(x, y) {
         webGLInterface.point(x, y);
     }
 
-    tempLove.setColor = function(r, g, b) {
+    loveInterface.temporary.setColor = function(r, g, b) {
         webGLInterface.setColor(r, g, b);
     }
 
-    tempLove.sendPoints = function() {
+    loveInterface.temporary.sendPoints = function() {
         webGLInterface.sendPoints();
     }
+
+    loveInterface.temporary.print = print;
 }

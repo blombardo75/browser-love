@@ -83,9 +83,7 @@ async function startProject(init, draw, update, mousepressed, onError, updateLim
         }
     }
 
-    await setupWebGL();
     setupCanvas(mousepressed);
-    setupLoveInterface();
     try {
         init()
     } catch (error) {
@@ -102,7 +100,40 @@ async function startProject(init, draw, update, mousepressed, onError, updateLim
     requestAnimationFrame(drawLoop)
 }
 
-window.onload = (event) => {
+function waitAsPromise(conditionFunc) {
+    return new Promise((resolve, reject) => {
+        var checkCondition = function() {
+            if (conditionFunc()) {
+                setTimeout(checkCondition, 0)
+            } else {
+                resolve()
+            }
+        }
+        checkCondition();
+    });
+}
+
+function setupFrame() {
+    var iWind = document.getElementById('luaFrame').contentWindow;
+    iWind.loveInterface = loveInterface;
+    var scriptObj = iWind.document.createElement('script');
+    scriptObj.src = 'iframeScript.js';
+    iWind.document.head.appendChild(scriptObj);
+}
+
+async function runSource(source) {
+    var iWind = document.getElementById('luaFrame').contentWindow;
+    await waitAsPromise(() => !iWind.luaReady);
+    iWind.eval(source)
+    startProject(iWind.love.init, iWind.love.draw, iWind.love.update, iWind.love.mousepressed, (error) => {throw error});
+}
+
+window.onload = async (event) => {
     clearConsole();
-    startProject(init, draw, update, mousepressed, (error) => {throw error});
+    await setupWebGL();
+    setupLoveInterface();
+    setupFrame();
+    readFile('canvasTest2.js').then(runSource);
+    //luaToJS('main.lua').then(runSource);
 };
+

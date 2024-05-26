@@ -405,20 +405,23 @@ function castAST(segment) {
 	}
 }
 
-function translate() {
-	console.log(parsingStorage.result);
-	var ast = castAST(parsingStorage.result);
+function translate(segment) {
+	console.log(segment);
+	var ast = castAST(segment);
 	console.log(ast);
+	return 'lua_var = 1; console.log(lua_var);'
 }
 
-var useBig = false;
-function parseTest() {
-	readFile(useBig ? 'main2.lua' : 'main.lua').then(tokenize).then((tokens) => {
+async function luaToJS(filename) {
+	let rawText = await readFile(filename);
+	let tokens = tokenize(rawText);
+	let startNumTokens = tokens.length;
+	let segment = await new Promise((resolve, reject) => {
 		setupParse(tokens, 30, (numSubs, timeElapsed) => {
-			print(parsingStorage.doneParsing ? "1 token" : `${parsingStorage.astTokens.length} tokens`, '|', `${numSubs} subs (${parsingStorage.totalSubs} total)`, '|', `${timeElapsed.toFixed(4)} secs`)
-		}, () => {
-			translate();
-		});
+			//print(parsingStorage.doneParsing ? "1 token" : `${parsingStorage.astTokens.length} tokens`, '|', `${numSubs} subs (${parsingStorage.totalSubs} total)`, '|', `${timeElapsed.toFixed(4)} secs`)
+			print(parsingStorage.doneParsing ? 'Parsing... 100%' : `Parsing... ${(100-100*parsingStorage.astTokens.length/startNumTokens).toFixed(1)}%`)
+		}, () => resolve(parsingStorage.result));
 		parse();
-	})
+	});
+	return translate(segment);
 }

@@ -1,23 +1,23 @@
-function draw() {
-	tempLove.fillBg(0, 0, 0);
+love.draw = function() {
+	loveInterface.temporary.fillBg(0, 0, 0);
 	lockedParticles.forEach(particle => {
-		tempLove.setColor(particle[0][0], particle[0][1], particle[0][2])
-		tempLove.point(particle[1][0]+0.5, particle[1][1]+0.5)
+		loveInterface.temporary.setColor(particle[0][0], particle[0][1], particle[0][2])
+		loveInterface.temporary.point(particle[1][0]+0.5, particle[1][1]+0.5)
 	})
 	particles.forEach(particle => {
-		tempLove.setColor(particle.color[0], particle.color[1], particle.color[2])
-		tempLove.point(particle.pos[0]+0.5, particle.pos[1]+0.5)
+		loveInterface.temporary.setColor(particle.color[0], particle.color[1], particle.color[2])
+		loveInterface.temporary.point(particle.pos[0]+0.5, particle.pos[1]+0.5)
 	})
-	tempLove.sendPoints();
+	loveInterface.temporary.sendPoints();
 }
 
-function update(dt) {
+love.update = function(dt) {
 	spawnParticle(500, 500)
 	updateParticles(dt)
 	print(lockedParticles.length, particles.length)
 }
 
-function mousepressed(x, y) {
+love.mousepressed = function(x, y) {
 	for(let i=0; i<1000; i++) spawnParticle(500, 500);
 }
 
@@ -125,7 +125,7 @@ function updateParticles(dt) {
 	particles = newParticles;
 }
 
-function init() {
+love.init = function() {
 	spawnVel = 250
 	spawnAngleChange = 4
 

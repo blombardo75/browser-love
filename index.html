@@ -6,7 +6,6 @@
     <script src="webGLUtils.js"></script>
     <script src="webGLInterface.js"></script>
     <script src="loveInterface.js"></script>
-    <script src="canvasTest2.js"></script>
     <script src="interface.js"></script>
     <script src="tokenizer.js"></script>
     <script src="parser.js"></script>
@@ -14,10 +13,11 @@
 </head>
 <body>
     <button onclick="webGLInterface.switch()">Color Switch</button>
+    <iframe id="luaFrame" style="position: absolute;width:0;height:0;border:0;"></iframe>
     <canvas id="luaCanvas" width="1024" height="768"></canvas>
     <div id="luaConsole"></div>
     <button onclick="print('O'.repeat(1000))">Print Test</button>
-    <button onclick="parseTest()">Parse Test</button>
+    <button onclick="luaToJS('main.lua')">Parse Test</button>
     <br>
     <br>
     This is an English sentence.
