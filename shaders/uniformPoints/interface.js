@@ -8,9 +8,13 @@ export var Interface = {};
 const canvas = document.getElementById("luaCanvas");
 const gl = canvas.getContext("webgl");
 
+var nextColorR = 1;
+var nextColorG = 1;
+var nextColorB = 1;
 Interface.setColor = function(r, g, b) {
-    Interface.setProgram();
-    Interface.updateUniform('uColor', r, g, b);
+    nextColorR = r;
+    nextColorG = g;
+    nextColorB = b;
 }
 
 var positionQueue = [];
@@ -26,6 +30,7 @@ Interface.fillBg = function(r, g, b) {
 
 Interface.sendPoints = function() {
     Interface.setProgram();
+    Interface.updateUniform('uColor', nextColorR, nextColorG, nextColorB);
     Interface.updateAttribute('aVertexPosition', positionQueue, gl.DYNAMIC_DRAW);
     gl.drawArrays(gl.POINTS, 0, positionQueue.length/2);
     positionQueue = [];

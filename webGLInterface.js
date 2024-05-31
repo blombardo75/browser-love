@@ -38,8 +38,8 @@ async function setupWebGL() {
         webGLInterface.fillBg = shaderStorage.interfaces['uniformPoints'].fillBg;
         webGLInterface.sendPoints = shaderStorage.interfaces['uniformPoints'].sendPoints;
     }
-    webGLInterface.curUsing = true;
-    webGLInterface.colorUniform();
+    webGLInterface.curUsing = false;
+    webGLInterface.colorAttribute();
 
     webGLInterface.switch = function() {
         if (this.curUsing) {

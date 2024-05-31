@@ -133,7 +133,7 @@ window.onload = async (event) => {
     await setupWebGL();
     setupLoveInterface();
     setupFrame();
-    readFile('canvasTest2.js').then(runSource);
-    //luaToJS('main.lua').then(runSource);
+    //readFile('canvasTest2.js').then(runSource);
+    luaToJS('main.lua').then(runSource);
 };
 
