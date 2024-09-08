@@ -116,16 +116,18 @@ function waitAsPromise(conditionFunc) {
 function setupFrame() {
     var iWind = document.getElementById('luaFrame').contentWindow;
     iWind.loveInterface = loveInterface;
+    iWind.NotSupportedError = NotSupportedError;
     var scriptObj = iWind.document.createElement('script');
     scriptObj.src = 'iframeScript.js';
     iWind.document.head.appendChild(scriptObj);
 }
 
 async function runSource(source) {
+    //console.log(source)
     var iWind = document.getElementById('luaFrame').contentWindow;
     await waitAsPromise(() => !iWind.luaReady);
-    iWind.eval(source)
-    startProject(iWind.love.init, iWind.love.draw, iWind.love.update, iWind.love.mousepressed, (error) => {throw error});
+    iWind.eval(source);
+    startProject(iWind.lua_love.lua_init, iWind.drawWrapper(iWind.lua_love.lua_draw), iWind.lua_love.lua_update, iWind.lua_love.lua_mousepressed, (error) => {throw error});
 }
 
 window.onload = async (event) => {
@@ -134,6 +136,5 @@ window.onload = async (event) => {
     setupLoveInterface();
     setupFrame();
     //readFile('canvasTest2.js').then(runSource);
-    luaToJS('main.lua').then(runSource);
+    await readFile('main.lua').then(luaToJS).then(runSource);
 };
-

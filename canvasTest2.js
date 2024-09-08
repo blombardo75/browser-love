@@ -1,4 +1,7 @@
-love.draw = function() {
+lua_love.lua_draw = function() {
+	drawCount++;
+    print(`${Math.round(updateCount/totalTime)} updates/sec, ${(drawCount/totalTime).toFixed(3)} draws/sec`)
+	
 	loveInterface.temporary.fillBg(0, 0, 0);
 	lockedParticles.forEach(particle => {
 		loveInterface.temporary.setColor(particle[0][0], particle[0][1], particle[0][2])
@@ -11,24 +14,27 @@ love.draw = function() {
 	loveInterface.temporary.sendPoints();
 }
 
-love.update = function(dt) {
+lua_love.lua_update = function(dt) {
+	totalTime+=dt;
+    updateCount++;
+
 	spawnParticle(500, 500)
 	updateParticles(dt)
-	print(lockedParticles.length, particles.length)
+	lua_print(lockedParticles.length, particles.length)
 }
 
-love.mousepressed = function(x, y) {
+lua_love.lua_mousepressed = function(x, y) {
 	for(let i=0; i<1000; i++) spawnParticle(500, 500);
 }
 
 function getParticleTargets() {
 	var targets = []
 	var i = 100
-	while (i<love.window.getWidth()-1) {
-		for (let j=0; j<love.window.getHeight(); j++) {
+	while (i<lua_love.lua_graphics.lua_getWidth()-1) {
+		for (let j=0; j<lua_love.lua_graphics.lua_getHeight(); j++) {
 			targets.push([100+i, j]);
 		}
-		for (let j=love.window.getHeight()-1; j>-1; j--) {
+		for (let j=lua_love.lua_graphics.lua_getHeight()-1; j>-1; j--) {
 			targets.push([100+i+1, j]);
 		}
 		i+=2
@@ -37,7 +43,7 @@ function getParticleTargets() {
 }
 
 function colorFromTarget(x,y) {
-	return [1-y/love.window.getHeight(), 0, y/love.window.getHeight()]
+	return [1-y/lua_love.lua_graphics.lua_getHeight(), 0, y/lua_love.lua_graphics.lua_getHeight()]
 }
 
 function spawnParticle(posx, posy) {
@@ -86,15 +92,15 @@ function updateParticles(dt) {
 			if (particle.pos[0]<0) {
 				particle.pos[0]=0
 				particle.vel[0]=-particle.vel[0]
-			} else if (particle.pos[0]>love.window.getWidth()-1) {
-				particle.pos[0]=love.window.getWidth()-1
+			} else if (particle.pos[0]>lua_love.lua_graphics.lua_getWidth()-1) {
+				particle.pos[0]=lua_love.lua_graphics.lua_getWidth()-1
 				particle.vel[0]=-particle.vel[0]
 			}
 			if (particle.pos[1]<0) {
 				particle.pos[1]=0
 				particle.vel[1]=-particle.vel[1]
-			} else if (particle.pos[1]>love.window.getHeight()-1) {
-				particle.pos[1]=love.window.getHeight()-1
+			} else if (particle.pos[1]>lua_love.lua_graphics.lua_getHeight()-1) {
+				particle.pos[1]=lua_love.lua_graphics.lua_getHeight()-1
 				particle.vel[1]=-particle.vel[1]
 			}
 			particle.angleChange = particle.angleChange + 0.5*dt	
@@ -125,7 +131,11 @@ function updateParticles(dt) {
 	particles = newParticles;
 }
 
-love.init = function() {
+lua_love.lua_init = function() {
+	totalTime = 0;
+    updateCount = 0;
+    drawCount = 0;
+
 	spawnVel = 250
 	spawnAngleChange = 4
 

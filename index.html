@@ -17,6 +17,6 @@
     <canvas id="luaCanvas" width="1024" height="768"></canvas>
     <div id="luaConsole"></div>
     <button onclick="print('O'.repeat(1000))">Print Test</button>
-    <button onclick="luaToJS('main.lua')">Parse Test</button>
+    <button onclick="readFile('main.lua').then(luaToJS)">Parse Test</button>
 </body>
 </html>

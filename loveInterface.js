@@ -2,18 +2,19 @@ function setupLoveInterface() {
     const canvas = document.getElementById("luaCanvas");
 
     loveInterface = {
-        window: {},
+        graphics: {},
         temporary: {}
     }
 
-    loveInterface.window.getHeight = function() {
+    loveInterface.graphics.getHeight = function() {
         return canvas.getBoundingClientRect().height
     }
 
-    loveInterface.window.getWidth = function() {
+    loveInterface.graphics.getWidth = function() {
         return canvas.getBoundingClientRect().width
     }
 
+    loveInterface.temporary.backgroundColor = (0, 0, 0)
     loveInterface.temporary.fillBg = function(r, g, b) {
         webGLInterface.fillBg(r, g, b);
     }

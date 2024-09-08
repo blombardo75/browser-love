@@ -658,7 +658,7 @@ function parse(tokens) {
         }
     });
 
-    start = performance.now();
+    let start = performance.now();
 	let result = realSub2(tokenNames, 'block', 0, tokens);
 	console.log(`parsed in ${(performance.now()-start).toFixed(1)} ms`);
 
